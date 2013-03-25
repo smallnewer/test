@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+	<title></title>
+	<meta charset='utf-8' />
+</head>
+
+<body>
+	<canvas id="a" width='1000' height="1000" style="border:1px solid red;"></canvas>
+	<script>
+
+		var  Back = {
+			easeIn: function(t,b,c,d,s){
+				if (s == undefined) s = 1.70158;
+				return c*(t/=d)*t*((s+1)*t - s) + b;
+			},
+			easeOut: function(t,b,c,d,s){
+				if (s == undefined) s = 1.70158;
+				return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+			},
+			easeInOut: function(t,b,c,d,s){
+				if (s == undefined) s = 1.70158; 
+				if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+				return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+			}
+		}
+		var a = document.getElementById("a")
+		var ctx = a.getContext('2d');
+		ctx.translate(150,150)
+		ctx.lineJoin="miter";
+		//ctx.lineCap="round";
+		
+		
+		var maxY = 200;
+		
+
+
+		function draw(x,y,rr,endy) {
+			ctx.clearRect(0,0,500,500);
+			ctx.save();
+			ctx.translate(x,y)
+			ctx.lineWidth = 10 //-5*(endy/200);
+			if (endy<0) {
+				
+				//ctx.scale(1,1-0.5*(endy/200));
+				//endy=0;
+			}else{
+				//ctx.translate(x,y);
+			}
+			
+			var x2 = 0,y2 = 0,r = rr;//原点,半径
+			var x1 = x2 - r,y1 = y2;//左侧点坐标
+			var x4 = x2,y4 = endy+r;//下方点坐标，y4为指定值
+			
+			ctx.beginPath();
+			
+			//上圆
+			ctx.moveTo(x1,y1);
+			ctx.arc(x1+r,y1,r,Math.PI,Math.PI*2);
+
+			//左半圆
+			ctx.moveTo(x1,y1);
+			var nr = -(x1*x1+y4*y4)/(2*x1);//新的半径长度
+			var aa = Math.PI-Math.asin(y4/nr);//所转弧度
+			ctx.arc(x1+nr,0,nr,Math.PI,aa,true);
+			
+
+			//右半圈
+			var aa = Math.asin(y4/nr)
+			ctx.arc(-(x1+nr),0,nr,aa,0,true);
+			
+			ctx.shadowColor = "#000";
+			ctx.shadowBlur = 20;
+			
+			ctx.fillStyle="#ddd";
+			ctx.fill();
+			ctx.stroke();
+			ctx.closePath();
+			ctx.restore();
+		}
+		var yy = 0;
+		/*t=setInterval(function(){
+			yy++;
+			if (yy>200) {
+				clearInterval(t)
+				return;
+			}
+			var dd = -10*(yy/100)
+			draw(100,100,50+dd,yy)
+		},170)*/
+		
+		var tt;
+		var _yy = 0;
+		function back() {
+			if (tt) {
+				clearInterval(tt)
+			}
+			var _n = 0;
+
+			tt=setInterval(function(){
+				_n++;
+				var nm = Back.easeOut(_n,_yy,0-_yy,31);
+				if (_n>31) {
+					clearInterval(tt)
+					return;
+				}
+				var dd = -10*(nm/100)
+				draw(100,100,50+dd,nm)
+			},17)
+		}
+
+		function dd(yyy) {
+			if (yyy>200) {
+				return;
+			}
+			var dd = -10*(yyy/100)
+			draw(100,100,50+dd,yyy)
+		}
+
+
+		var sy = 0;
+		document.onmousedown = function(e){
+			sy = e.clientY;
+			clearInterval(tt)
+			document.onmousemove = function(e){
+				ny = e.clientY - sy;
+				_yy = ny;
+				dd(ny);
+			}
+		
+		}
+		document.onmouseup = function(e){
+			document.onmousemove = null;
+			clearInterval(tt)
+			back();
+		}
+		
+	</script>
+</body>
+</html>
